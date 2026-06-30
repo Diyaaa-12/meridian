@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { withRetry, withRaceTimeout, sanitizeTxError, fromStroops, formatUsdAmount, parseUsdAmount } from "./utils";
+import { withRetry, withRaceTimeout, sanitizeTxError, fromStroops, formatUsdAmount, parseUsdAmount, shortenAddress } from "./utils";
 
 describe("sanitizeTxError", () => {
   it("returns the fallback for non-Error values", () => {
@@ -189,5 +189,18 @@ describe("parseUsdAmount", () => {
 
   it("returns null for malformed multi-dot string", () => {
     expect(parseUsdAmount("1.2.3")).toBeNull();
+  });
+});
+describe("shortenAddress", () => {
+  it("shortens a standard G-address to 4+4 chars by default", () => {
+    expect(shortenAddress("GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ")).toBe("GABC...WXYZ");
+  });
+
+  it("respects a custom chars argument", () => {
+    expect(shortenAddress("GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVWXYZ", 6)).toBe("GABCDE...UVWXYZ");
+  });
+
+  it("handles a short input without crashing", () => {
+    expect(shortenAddress("GABC")).toBe("GABC...GABC");
   });
 });
